@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - DynartDemoApp</title>
+</head>
+<body>
+    <h1>Dashboard</h1>
+    <a href="/api/logout">
+        <button>Logout</button>
+    </a>
+    <div id="permissions">
+        <h2>Your Permissions</h2>
+        <ul id="permissions-list">
+            <li>Loading...</li>
+        </ul>
+    </div>
+
+    <script>
+        async function loadPermissions() {
+            try {
+                const response = await fetch('/api/permissions');
+                if (!response.ok) {
+                    // Not authenticated, redirect to login
+                    window.location.href = '/';
+                    return;
+                }
+                const data = await response.json();
+                const list = document.getElementById('permissions-list');
+                list.innerHTML = '';
+
+                if (data.permissions && data.permissions.length > 0) {
+                    data.permissions.forEach(permission => {
+                        const li = document.createElement('li');
+                        li.textContent = permission;
+                        list.appendChild(li);
+                    });
+                } else {
+                    list.innerHTML = '<li>No permissions assigned</li>';
+                }
+            } catch (error) {
+                console.error('Error loading permissions:', error);
+                // Redirect to login on error
+                window.location.href = '/';
+            }
+        }
+
+        loadPermissions();
+    </script>
+</body>
+</html>
