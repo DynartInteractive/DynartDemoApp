@@ -120,11 +120,37 @@ Set in `appsettings.Development.json` for logout redirects:
 ## Authorization
 
 ### Protecting Endpoints
-Use the `[Authorize]` attribute with policy names:
+Use the `[Authorize]` attribute with policy names to protect endpoints by permission:
+
 ```csharp
-[Authorize(Policy = "users:read")]
-[HttpGet]
-public IActionResult GetUsers() { ... }
+[ApiController]
+[Route("api/[controller]")]
+public class UsersController : ControllerBase
+{
+    [HttpGet]
+    [Authorize(Policy = "users:read")]
+    public IActionResult GetUsers()
+    {
+        // Only users with "users:read" permission can access this
+        return Ok(new { users = new[] { "user1", "user2" } });
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "users:write")]
+    public IActionResult CreateUser([FromBody] CreateUserRequest request)
+    {
+        // Only users with "users:write" permission can access this
+        return Ok();
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Policy = "admin:access")]
+    public IActionResult DeleteUser(int id)
+    {
+        // Only users with "admin:access" permission can access this
+        return NoContent();
+    }
+}
 ```
 
 ### Available Policies
@@ -135,6 +161,31 @@ public IActionResult GetUsers() { ... }
 ### Default Roles
 - **User** (RoleId: 1) - Assigned to all new registrations, has `users:read` permission
 - **Admin** (RoleId: 2) - Has all permissions (`users:read`, `users:write`, `admin:access`)
+
+### Adding New Permissions
+
+1. **Add to database** (via migration or SQL):
+```sql
+INSERT INTO permissions (name) VALUES ('posts:create');
+INSERT INTO role_permissions (role_id, permission_id) VALUES (1, <new_permission_id>);
+```
+
+2. **Add policy to Program.cs**:
+```csharp
+builder.Services.AddAuthorization(options =>
+{
+    // ... existing policies
+    options.AddPolicy("posts:create", policy =>
+        policy.RequireClaim("permission", "posts:create"));
+});
+```
+
+3. **Use in controller**:
+```csharp
+[Authorize(Policy = "posts:create")]
+[HttpPost]
+public IActionResult CreatePost() { ... }
+```
 
 ## Authentication Flow
 
