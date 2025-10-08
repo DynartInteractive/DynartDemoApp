@@ -92,12 +92,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Fallback to app.html for non-API routes
+app.MapFallbackToFile("app.html");
 
 app.Run();

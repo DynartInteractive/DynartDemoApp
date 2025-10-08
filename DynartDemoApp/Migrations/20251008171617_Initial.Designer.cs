@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DynartDemoApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251002214752_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251008171617_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -205,6 +205,9 @@ namespace DynartDemoApp.Migrations
                     b.Property<DateTime?>("LastLoginAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("last_login_at");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 

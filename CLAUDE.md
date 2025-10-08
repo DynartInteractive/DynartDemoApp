@@ -33,13 +33,14 @@ DynartDemoApp is an ASP.NET Core 8.0 web application with controller-based API e
   - `PostLoginController`: Handles post-OAuth registration and login (`/api/post-login`)
   - `LogoutController`: Handles logout with OAuth token revocation (`/api/logout`)
   - `PermissionsController`: Returns current user's permissions (`/api/permissions`)
+  - `UsersController`: CRUD operations for user management (`/api/users`)
   - `WeatherForecastController`: Example API endpoint
 - **Models/**: EF Core entities (User, Role, Permission, ExternalLogin, UserRole, RolePermission)
 - **Data/**: `ApplicationDbContext` with EF Core configuration, snake_case naming, and seed data
 - **Services/**: `PermissionClaimsTransformation` for loading permissions as claims
 - **wwwroot/**: Static files
   - `index.html`: Login page with auto-redirect to app if authenticated
-  - `app.html`: Dashboard with logout button and permissions display
+  - `app.html`: Single-page application (SPA) with Alpine.js, Navigo routing, and Ionic Framework UI
 
 ## Development Commands
 
@@ -187,13 +188,33 @@ builder.Services.AddAuthorization(options =>
 public IActionResult CreatePost() { ... }
 ```
 
+## Frontend Architecture
+
+### Single-Page Application (app.html)
+- **Framework**: Alpine.js for reactivity and data binding
+- **Router**: Navigo for client-side routing
+- **UI Components**: Ionic Framework for mobile-optimized UI
+- **No Build Step**: All libraries loaded via CDN
+
+### Routes
+- `/` - Dashboard view showing user permissions
+- `/users` - User management list with search and filtering
+- `/users/edit/:id` - User edit form
+
+### Features
+- Client-side filtering and search
+- Reactive forms with validation
+- Loading states and error handling
+- Delete confirmation modals
+- All routes fallback to `app.html` (non-API routes served by SPA)
+
 ## Authentication Flow
 
 1. **Login**: User clicks "Login with Google" → redirects to Google OAuth
 2. **Callback**: Google redirects to `/signin-google` → cookie created with provider tracking
 3. **Post-Login**: Redirects to `/api/post-login` → user registered/updated in DB → redirects to `/app.html`
-4. **Permissions**: JavaScript fetches `/api/permissions` → displays user permissions
-5. **Logout**: User clicks "Logout" → revokes Google token → clears cookie → redirects to `/`
+4. **Dashboard**: Alpine.js fetches `/api/permissions` → displays user permissions
+5. **Logout**: User clicks "Logout" → redirects to `/api/logout` → revokes Google token → clears cookie → redirects to `/`
 
 ## Security Features
 
@@ -205,6 +226,7 @@ public IActionResult CreatePost() { ... }
 
 ## Key Technologies
 
+### Backend
 - Target Framework: .NET 8.0
 - Nullable reference types: Enabled
 - Implicit usings: Enabled
@@ -212,3 +234,9 @@ public IActionResult CreatePost() { ... }
 - Database: MySQL with Pomelo.EntityFrameworkCore.MySql
 - HTTP Client: IHttpClientFactory for OAuth token revocation
 - Development environment enables Swagger UI and auto-migrations
+
+### Frontend
+- Alpine.js 3.x - Reactive data binding and interactivity
+- Navigo 8.x - Client-side routing
+- Ionic Framework - Mobile-optimized UI components
+- All libraries loaded via CDN (no build process required)

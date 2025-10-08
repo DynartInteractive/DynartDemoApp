@@ -203,6 +203,9 @@ namespace DynartDemoApp.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("last_login_at");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
