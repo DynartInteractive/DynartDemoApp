@@ -1,7 +1,10 @@
 using DynartDemoApp.Data;
 using DynartDemoApp.Services;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,10 +17,13 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
+// Add JWT Service
+builder.Services.AddScoped<IJwtService, JwtService>();
+
 // Add claims transformation
 builder.Services.AddScoped<IClaimsTransformation, PermissionClaimsTransformation>();
 
-// Add authentication
+// Add authentication - support both Cookie and JWT
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = "Cookies";
@@ -40,6 +46,20 @@ builder.Services.AddAuthentication(options =>
         return Task.CompletedTask;
     };
 })
+.AddJwtBearer("Bearer", options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+    };
+})
 .AddGoogle("Google", options =>
 {
     options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
@@ -58,15 +78,18 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("email");
 });
 
-// Add authorization policies
+// Add authorization policies - support both Cookie and JWT Bearer
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("users:read", policy =>
-        policy.RequireClaim("permission", "users:read"));
+        policy.RequireClaim("permission", "users:read")
+              .AddAuthenticationSchemes("Cookies", "Bearer"));
     options.AddPolicy("users:write", policy =>
-        policy.RequireClaim("permission", "users:write"));
+        policy.RequireClaim("permission", "users:write")
+              .AddAuthenticationSchemes("Cookies", "Bearer"));
     options.AddPolicy("admin:access", policy =>
-        policy.RequireClaim("permission", "admin:access"));
+        policy.RequireClaim("permission", "admin:access")
+              .AddAuthenticationSchemes("Cookies", "Bearer"));
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
