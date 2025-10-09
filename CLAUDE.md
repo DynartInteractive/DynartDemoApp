@@ -28,6 +28,8 @@ DynartDemoApp is an ASP.NET Core 8.0 web application with controller-based API e
   - `Permission` defines granular access rights (e.g., "users:read", "admin:access")
 
 ### Project Structure
+
+#### Backend (DynartDemoApp/)
 - **Controllers/**: API controllers using attribute routing
   - `LoginController`: Initiates OAuth flow (`/api/login/google`)
   - `PostLoginController`: Handles post-OAuth registration and login (`/api/post-login`)
@@ -38,38 +40,46 @@ DynartDemoApp is an ASP.NET Core 8.0 web application with controller-based API e
 - **Models/**: EF Core entities (User, Role, Permission, ExternalLogin, UserRole, RolePermission)
 - **Data/**: `ApplicationDbContext` with EF Core configuration, snake_case naming, and seed data
 - **Services/**: `PermissionClaimsTransformation` for loading permissions as claims
-- **wwwroot/**: Static files
-  - `index.html`: Login page with auto-redirect to app if authenticated
-  - `app.html`: Single-page application (SPA) with Alpine.js, Navigo routing, and Ionic Framework UI
+
+#### Frontend (DynartDemoAppUI/)
+- **src/api/**: API client for backend communication
+- **src/contexts/**: React contexts (AuthContext)
+- **src/pages/**: Page components (Dashboard, UsersList, UserEdit)
+- **src/types/**: TypeScript type definitions
+- **React + TypeScript**: Component-based UI with type safety
+- **Vite**: Fast development server with HMR
+- **Ionic React**: Mobile-optimized UI components
 
 ## Development Commands
 
-### Build
+### Backend (ASP.NET Core)
+
+#### Build
 ```bash
 dotnet build
 ```
 
-### Run
+#### Run
 ```bash
 dotnet run --project DynartDemoApp/DynartDemoApp.csproj
 ```
 
-The app runs on:
+The backend runs on:
 - HTTPS: https://localhost:7108
 - HTTP: http://localhost:5041
 - Swagger UI available at /swagger in development mode
 
-### Restore Dependencies
+#### Restore Dependencies
 ```bash
 dotnet restore
 ```
 
-### Clean Build Artifacts
+#### Clean Build Artifacts
 ```bash
 dotnet clean
 ```
 
-### Database Migrations
+#### Database Migrations
 ```bash
 # Create a new migration
 dotnet ef migrations add MigrationName --project DynartDemoApp/DynartDemoApp.csproj
@@ -79,6 +89,34 @@ dotnet ef database update --project DynartDemoApp/DynartDemoApp.csproj
 
 # Remove last migration
 dotnet ef migrations remove --project DynartDemoApp/DynartDemoApp.csproj
+```
+
+### Frontend (React + Vite)
+
+#### Install Dependencies
+```bash
+cd DynartDemoAppUI
+npm install
+```
+
+#### Run Development Server
+```bash
+cd DynartDemoAppUI
+npm run dev
+```
+
+The frontend runs on http://localhost:3000 and proxies API requests to the backend at https://localhost:7108
+
+#### Build for Production
+```bash
+cd DynartDemoAppUI
+npm run build
+```
+
+#### Preview Production Build
+```bash
+cd DynartDemoAppUI
+npm run preview
 ```
 
 ## Configuration
@@ -190,31 +228,56 @@ public IActionResult CreatePost() { ... }
 
 ## Frontend Architecture
 
-### Single-Page Application (app.html)
-- **Framework**: Alpine.js for reactivity and data binding
-- **Router**: Navigo for client-side routing
-- **UI Components**: Ionic Framework for mobile-optimized UI
-- **No Build Step**: All libraries loaded via CDN
+### React Single-Page Application (DynartDemoAppUI)
+- **Framework**: React 18 with TypeScript for component-based architecture and type safety
+- **Router**: React Router v5 for client-side routing
+- **UI Components**: Ionic React for mobile-optimized UI components
+- **Build Tool**: Vite for fast development with hot module replacement (HMR)
+- **State Management**: React Context API for authentication state
+- **API Client**: Custom TypeScript client with type-safe endpoints
 
 ### Routes
 - `/` - Dashboard view showing user permissions
 - `/users` - User management list with search and filtering
 - `/users/edit/:id` - User edit form
 
+### Project Structure
+```
+DynartDemoAppUI/
+├── src/
+│   ├── api/
+│   │   └── client.ts          # Type-safe API client
+│   ├── contexts/
+│   │   └── AuthContext.tsx    # Authentication context
+│   ├── pages/
+│   │   ├── Dashboard.tsx      # Dashboard with permissions
+│   │   ├── UsersList.tsx      # Users list with search/filter
+│   │   └── UserEdit.tsx       # User edit/create form
+│   ├── types/
+│   │   └── index.ts           # TypeScript interfaces
+│   ├── App.tsx                # Main app with routing
+│   └── main.tsx               # Entry point
+└── vite.config.ts             # Vite config with API proxy
+```
+
 ### Features
+- Component-based architecture with React hooks
 - Client-side filtering and search
-- Reactive forms with validation
+- Reactive forms with TypeScript validation
 - Loading states and error handling
-- Delete confirmation modals
-- All routes fallback to `app.html` (non-API routes served by SPA)
+- Delete confirmation modals with Ionic alerts
+- Type-safe API communication
+- Hot module replacement (HMR) for fast development
 
 ## Authentication Flow
 
-1. **Login**: User clicks "Login with Google" → redirects to Google OAuth
+1. **Login**: User accesses backend at `https://localhost:7108` → clicks "Login with Google" → redirects to Google OAuth
 2. **Callback**: Google redirects to `/signin-google` → cookie created with provider tracking
-3. **Post-Login**: Redirects to `/api/post-login` → user registered/updated in DB → redirects to `/app.html`
-4. **Dashboard**: Alpine.js fetches `/api/permissions` → displays user permissions
-5. **Logout**: User clicks "Logout" → redirects to `/api/logout` → revokes Google token → clears cookie → redirects to `/`
+3. **Post-Login**: Redirects to `/api/post-login` → user registered/updated in DB
+4. **Frontend Access**: User navigates to React UI at `http://localhost:3000`
+5. **Auth Check**: React AuthContext checks `/api/permissions` → loads user permissions → displays dashboard
+6. **API Requests**: All React API calls go through Vite proxy to backend (authenticated via cookie)
+7. **Logout**: User clicks "Logout" → redirects to `/api/logout` → revokes Google token → clears cookie → redirects to login
 
 ## Security Features
 
@@ -227,16 +290,24 @@ public IActionResult CreatePost() { ... }
 ## Key Technologies
 
 ### Backend
-- Target Framework: .NET 8.0
-- Nullable reference types: Enabled
-- Implicit usings: Enabled
-- Primary constructors: Used in controllers
-- Database: MySQL with Pomelo.EntityFrameworkCore.MySql
-- HTTP Client: IHttpClientFactory for OAuth token revocation
-- Development environment enables Swagger UI and auto-migrations
+- **Target Framework**: .NET 8.0
+- **Nullable reference types**: Enabled
+- **Implicit usings**: Enabled
+- **Primary constructors**: Used in controllers
+- **Database**: MySQL with Pomelo.EntityFrameworkCore.MySql
+- **HTTP Client**: IHttpClientFactory for OAuth token revocation
+- **Development**: Swagger UI and auto-migrations enabled
 
 ### Frontend
-- Alpine.js 3.x - Reactive data binding and interactivity
-- Navigo 8.x - Client-side routing
-- Ionic Framework - Mobile-optimized UI components
-- All libraries loaded via CDN (no build process required)
+- **React 18**: Modern component-based UI library
+- **TypeScript**: Full type safety for better developer experience
+- **Vite**: Lightning-fast build tool with HMR
+- **React Router v5**: Client-side routing
+- **Ionic React**: Mobile-optimized UI components
+- **Ionicons**: Icon library
+
+### Development Workflow
+- **Separate Frontend/Backend**: Backend serves API only, frontend is separate Vite project
+- **API Proxy**: Vite dev server proxies `/api/*` requests to backend
+- **Cookie Authentication**: Auth cookies sent automatically with proxied requests
+- **Hot Reload**: Both frontend (Vite HMR) and backend (dotnet watch) support hot reload

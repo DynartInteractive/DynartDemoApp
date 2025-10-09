@@ -23,4 +23,11 @@
       <Folder Include="Migrations\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\app.html" />
+      <_ContentIncludedByDefault Remove="wwwroot\dist\app.html" />
+      <_ContentIncludedByDefault Remove="wwwroot\dist\assets\app-tpz5HfRO.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\index.html" />
+    </ItemGroup>
+
 </Project>
