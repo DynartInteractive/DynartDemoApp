@@ -43,6 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginWithGoogle = async () => {
     try {
+      setLoading(true);
       if (Capacitor.isNativePlatform()) {
         // Mobile: Use native Google Sign In
         const idToken = await signInWithGoogle();
@@ -55,6 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       console.error('Login failed:', error);
+      setLoading(false);
       throw error;
     }
   };

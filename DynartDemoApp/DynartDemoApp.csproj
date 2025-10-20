@@ -4,8 +4,10 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-      <UserSecretsId>f391562d-a268-4c8a-9afc-dcb3f79baf08</UserSecretsId>
-  </PropertyGroup>
+        <UserSecretsId>f391562d-a268-4c8a-9afc-dcb3f79baf08</UserSecretsId>
+        <EnableDefaultContentItems>false</EnableDefaultContentItems>
+        <GenerateStaticWebAssetsManifest>false</GenerateStaticWebAssetsManifest>
+    </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Google.Apis.Auth" Version="1.72.0" />
@@ -23,13 +25,6 @@
 
     <ItemGroup>
       <Folder Include="Migrations\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="wwwroot\app.html" />
-      <_ContentIncludedByDefault Remove="wwwroot\dist\app.html" />
-      <_ContentIncludedByDefault Remove="wwwroot\dist\assets\app-tpz5HfRO.js" />
-      <_ContentIncludedByDefault Remove="wwwroot\index.html" />
     </ItemGroup>
 
 </Project>

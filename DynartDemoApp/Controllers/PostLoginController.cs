@@ -8,7 +8,7 @@ namespace DynartDemoApp.Controllers;
 
 [ApiController]
 [Route("api/post-login")]
-public class PostLoginController(ILogger<PostLoginController> logger, ApplicationDbContext db)
+public class PostLoginController(ILogger<PostLoginController> logger, ApplicationDbContext db, IConfiguration configuration)
     : ControllerBase
 {
     [HttpGet]
@@ -70,6 +70,7 @@ public class PostLoginController(ILogger<PostLoginController> logger, Applicatio
 
         logger.LogInformation("User {Email} logged in successfully via {Provider}", email, provider);
 
-        return Redirect("/app.html");
+        var frontendUrl = configuration["FrontendUrl"] ?? "http://localhost:3000";
+        return Redirect(frontendUrl);
     }
 }

@@ -47,7 +47,8 @@ public class LogoutController(
         await HttpContext.SignOutAsync("Cookies");
         logger.LogInformation("User logged out from provider: {Provider}", provider);
 
-        return Redirect("/");
+        var frontendUrl = configuration["FrontendUrl"] ?? "http://localhost:3000";
+        return Redirect($"{frontendUrl}/login");
     }
 
     private async Task RevokeGoogleTokenAsync()

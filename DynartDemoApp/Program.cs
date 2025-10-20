@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DynartDemoApp.Data;
 using DynartDemoApp.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -34,8 +35,7 @@ builder.Services.AddAuthentication(options =>
     options.Events.OnSigningIn = context =>
     {
         // Store the OAuth provider in claims for logout
-        var identity = context.Principal?.Identity as System.Security.Claims.ClaimsIdentity;
-        if (identity != null)
+        if (context.Principal?.Identity is ClaimsIdentity identity)
         {
             var authMethod = identity.FindFirst("http://schemas.microsoft.com/ws/2008/06/identity/claims/authenticationmethod")?.Value;
             if (!string.IsNullOrEmpty(authMethod))
@@ -113,7 +113,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Only use HTTPS redirection in production
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -16,13 +16,13 @@ export interface PermissionsResponse {
 }
 
 export interface CreateUserRequest {
-  displayName: string;
+  name: string;
   email: string;
   role: string;
 }
 
 export interface UpdateUserRequest {
-  displayName: string;
+  name: string;
   email: string;
   role: string;
 }

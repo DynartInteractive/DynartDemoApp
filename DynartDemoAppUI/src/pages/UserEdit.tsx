@@ -56,13 +56,13 @@ const UserEdit: React.FC = () => {
     try {
       if (user.id) {
         await apiClient.updateUser(user.id, {
-          displayName: user.displayName!,
+          name: user.displayName!,
           email: user.email!,
           role: user.role!,
         });
       } else {
         await apiClient.createUser({
-          displayName: user.displayName!,
+          name: user.displayName!,
           email: user.email!,
           role: user.role!,
         });

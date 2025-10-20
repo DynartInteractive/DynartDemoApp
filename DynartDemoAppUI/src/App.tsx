@@ -14,9 +14,11 @@ import {
 import { home, logOut, people } from 'ionicons/icons';
 
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { usePermissions } from './hooks/usePermissions';
 import Dashboard from './pages/Dashboard';
 import UsersList from './pages/UsersList';
 import UserEdit from './pages/UserEdit';
+import Login from './pages/Login';
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -28,13 +30,14 @@ setupIonicReact();
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, loading, logout } = useAuth();
+  const { hasPermission } = usePermissions();
   const history = useHistory();
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      window.location.href = '/';
+      history.push('/login');
     }
-  }, [isAuthenticated, loading]);
+  }, [isAuthenticated, loading, history]);
 
   if (loading) {
     return (
@@ -49,7 +52,14 @@ const AppContent: React.FC = () => {
   }
 
   if (!isAuthenticated) {
-    return null;
+    return (
+      <IonApp>
+        <Switch>
+          <Route path="/login" component={Login} />
+          <Route path="*" component={Login} />
+        </Switch>
+      </IonApp>
+    );
   }
 
   return (
@@ -62,10 +72,12 @@ const AppContent: React.FC = () => {
               <IonIcon icon={home} />
               Dashboard
             </IonButton>
-            <IonButton onClick={() => history.push('/users')}>
-              <IonIcon icon={people} />
-              Users
-            </IonButton>
+            {hasPermission('users:read') && (
+              <IonButton onClick={() => history.push('/users')}>
+                <IonIcon icon={people} />
+                Users
+              </IonButton>
+            )}
             <IonButton onClick={logout}>
               <IonIcon icon={logOut} />
               Logout

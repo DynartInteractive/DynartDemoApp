@@ -1,0 +1,30 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.login-card {
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.login-content {
+  padding: 20px 0;
+}
+
+.login-content p {
+  margin-bottom: 24px;
+  color: #666;
+}
+
+.google-login-button {
+  margin-top: 16px;
+  --background: #4285f4;
+  --background-hover: #357ae8;
+  --background-activated: #357ae8;
+  font-weight: 500;
+}

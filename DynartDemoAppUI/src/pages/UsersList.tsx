@@ -20,9 +20,11 @@ import {
 import { create, peopleOutline, trash } from 'ionicons/icons';
 import { apiClient } from '../api/client';
 import type { User } from '../types';
+import { usePermissions } from '../hooks/usePermissions';
 
 const UsersList: React.FC = () => {
   const history = useHistory();
+  const { hasPermission } = usePermissions();
   const [users, setUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
@@ -125,14 +127,18 @@ const UsersList: React.FC = () => {
                     )}
 
                     <div className="user-actions">
-                      <IonButton size="small" onClick={() => history.push(`/users/edit/${user.id}`)}>
-                        <IonIcon slot="start" icon={create} />
-                        Edit
-                      </IonButton>
-                      <IonButton size="small" color="danger" onClick={() => confirmDelete(user)}>
-                        <IonIcon slot="start" icon={trash} />
-                        Delete
-                      </IonButton>
+                      {hasPermission('users:write') && (
+                        <IonButton size="small" onClick={() => history.push(`/users/edit/${user.id}`)}>
+                          <IonIcon slot="start" icon={create} />
+                          Edit
+                        </IonButton>
+                      )}
+                      {hasPermission('admin:access') && (
+                        <IonButton size="small" color="danger" onClick={() => confirmDelete(user)}>
+                          <IonIcon slot="start" icon={trash} />
+                          Delete
+                        </IonButton>
+                      )}
                     </div>
                   </IonCardContent>
                 </IonCard>
